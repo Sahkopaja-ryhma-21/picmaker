@@ -9,8 +9,6 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let instructions = Instrcution::from_file(&args.filename)?;
 
-    println!("{:?}", instructions);
-
     Ok(())
 }
 
@@ -50,15 +48,16 @@ impl Instrcution {
         }
     }
 
-    fn from_file(filename: &Path) -> Result<Vec<Instrcution>, Box<dyn Error>>{
+    fn from_file(filename: &Path) -> Result<Vec<Instrcution>, Box<dyn Error>> {
         let paths = get_paths_from_file(filename)?;
-        let instructions: Vec<Instrcution> = paths
-                .iter()
-                .map(|x| Instrcution::parse_path(x))
-                .collect::<Result<Vec<_>, _>>()?
-                .into_iter()
-                .flatten()
-                .collect();
+        let mut instructions: Vec<Instrcution> = paths
+            .iter()
+            .map(Instrcution::parse_path)
+            .collect::<Result<Vec<_>, _>>()?
+            .into_iter()
+            .flatten()
+            .collect();
+        instructions.push(Instrcution::EOF);
         Ok(instructions)
     }
 
@@ -70,9 +69,7 @@ impl Instrcution {
                     state = State::MoveTo;
                     None
                 }
-                "Z" => {
-                    None
-                }
+                "Z" => None,
                 t => {
                     match t
                         .split_once(',')
@@ -109,7 +106,35 @@ impl Instrcution {
 
 #[cfg(test)]
 mod tests {
+    use std::{path::PathBuf, str::FromStr};
+
+    use crate::Instrcution;
 
     #[test]
-    fn test_line() {}
+    fn test_line() {
+        let res: Vec<Vec<u8>> = vec![vec![1, 0, 0], vec![2, 255, 255], vec![0, 0, 0]];
+        let i = Instrcution::from_file(
+            &PathBuf::from_str("test.svg").expect("Did not find file test.svg"),
+        )
+        .unwrap();
+        i.iter()
+            .zip(res)
+            .for_each(|x| assert_eq!(x.1, x.0.to_bytes()));
+    }
+
+    #[test]
+    fn test_multiple_lines() {
+        let res: Vec<u8> = vec![
+            1, 0, 0, 2, 255, 255, 1, 216, 137, 2, 83, 180, 2, 34, 111, 2, 140, 49, 2, 166, 108, 2,
+            237, 89, 0, 0, 0,
+        ];
+        let i = Instrcution::from_file(
+            &PathBuf::from_str("test2.svg").expect("Did not find file test2.svg"),
+        )
+        .unwrap();
+        i.iter()
+            .flat_map(Instrcution::to_bytes)
+            .zip(res)
+            .for_each(|(x, correct)| assert_eq!(x, correct));
+    }
 }
