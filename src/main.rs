@@ -3,11 +3,18 @@ use clap::Parser;
 use std::{error::Error, fs::read_to_string, path::Path};
 
 mod args;
+mod serial;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let args = Args::parse();
 
     let instructions = Instrcution::from_file(&args.filename)?;
+    serial::upload_data(
+        instructions
+            .iter()
+            .flat_map(Instrcution::to_bytes)
+            .collect(),
+    )?;
 
     Ok(())
 }

@@ -7,4 +7,6 @@ edition = "2021"
 
 [dependencies]
 clap = { version = "4.4.7", features = ["derive"] }
+inquire = "0.6.2"
 roxmltree = "0.18.1"
+serialport = "4.2.2"
