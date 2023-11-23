@@ -10,6 +10,7 @@ pub fn upload_data(payload: Box<[u8]>) -> Result<(), Box<dyn Error>> {
     )
     .prompt()?;
     let baud_rate = inquire::CustomType::<u32>::new(&format!("Enter baud rate (default: {DEFAULT_BAUD_RATE})")).with_default(DEFAULT_BAUD_RATE).prompt()?;
-    let mut open_port = serialport::new(chosen, baud_rate).timeout(Duration::from_millis(10)).open()?;
-    Ok(open_port.write_all(&payload)?)
+    let mut open_port = serialport::new(chosen, baud_rate).open()?;
+    open_port.write_all(&payload)?;
+    Ok(open_port.flush()?)
 }
