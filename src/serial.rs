@@ -1,4 +1,4 @@
-use std::{error::Error, fmt::Display, time::Duration};
+use std::error::Error;
 
 const DEFAULT_BAUD_RATE:u32 = 9600;
 
