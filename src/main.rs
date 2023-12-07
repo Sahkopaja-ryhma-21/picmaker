@@ -1,8 +1,10 @@
 use args::Args;
 use clap::Parser;
+use point::Point;
 use std::{error::Error, fs::read_to_string, path::Path};
 
 mod args;
+mod point;
 mod serial;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -43,10 +45,7 @@ enum State {
     DrawLineR,
 }
 
-#[derive(Debug, Clone, Copy)]
-struct Point(u8, u8);
-
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum Instrcution {
     EOF,
     MoveTo(Point),
