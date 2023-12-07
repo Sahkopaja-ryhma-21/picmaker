@@ -1,6 +1,8 @@
 use std::error::Error;
 
-const DEFAULT_BAUD_RATE:u32 = 9600;
+const DEFAULT_BAUD_RATE: u32 = 9600;
+
+// TODO:If only one option then auto accept
 
 pub fn upload_data(payload: Box<[u8]>) -> Result<(), Box<dyn Error>> {
     let ports = serialport::available_ports()?;
@@ -9,7 +11,11 @@ pub fn upload_data(payload: Box<[u8]>) -> Result<(), Box<dyn Error>> {
         ports.iter().map(|x| x.port_name.clone()).collect(),
     )
     .prompt()?;
-    let baud_rate = inquire::CustomType::<u32>::new(&format!("Enter baud rate (default: {DEFAULT_BAUD_RATE})")).with_default(DEFAULT_BAUD_RATE).prompt()?;
+    // TODO: give better error.
+    let baud_rate =
+        inquire::CustomType::<u32>::new(&format!("Enter baud rate (default: {DEFAULT_BAUD_RATE})"))
+            .with_default(DEFAULT_BAUD_RATE)
+            .prompt()?;
     let mut open_port = serialport::new(chosen, baud_rate).open()?;
     open_port.write_all(&payload)?;
     Ok(open_port.flush()?)
