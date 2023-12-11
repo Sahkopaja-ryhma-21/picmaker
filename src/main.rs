@@ -58,6 +58,10 @@ enum State {
     MoveToR,
     ///Relative drawline
     DrawLineR,
+    DrawVertical,
+    DrawVerticalR,
+    DrawHorizontal,
+    DrawHorizontalR,
 }
 
 #[derive(Debug, Clone)]
@@ -121,6 +125,22 @@ impl Instrcution {
                     state = State::DrawLineR;
                     None
                 }
+                "H" => {
+                    state = State::DrawHorizontal;
+                    None
+                }
+                "h" => {
+                    state = State::DrawHorizontalR;
+                    None
+                }
+                "V" => {
+                    state = State::DrawVertical;
+                    None
+                }
+                "v" => {
+                    state = State::DrawVerticalR;
+                    None
+                }
                 t => {
                     match t
                         .split_once(',')
@@ -134,7 +154,8 @@ impl Instrcution {
                                 255f64
                                     * x.1
                                         .parse::<f64>()
-                                        .expect(format!("Could not parse {}", x.1).as_str())
+                                        // It is possible for there to be no second cordinate
+                                        .unwrap_or(f64::NAN)
                                     / height,
                             )
                         })
@@ -160,26 +181,47 @@ impl Instrcution {
     }
 
     fn create(state: &mut State, x: f64, y: f64, lp: Option<&Point>) -> Self {
+        // x is the first parameter. It is the xcordinate, execept for vertical lines, where x is
+        // used as the horisontal cordinate aswell.
+
         let x = x.floor() as i16;
         let y = y.floor() as i16;
+        let xdiff: Option<u8> = lp.map(|v| (x + (v.0 as i16)).try_into().unwrap_or(u8::MAX));
+        let ydiff: Option<u8> = lp.map(|v| (y + (v.1 as i16)).try_into().unwrap_or(u8::MAX));
+        let xa: u8 = x.try_into().unwrap_or(u8::MAX);
+        let ya: u8 = y.try_into().unwrap_or(u8::MAX);
         match state {
             State::MoveTo => {
                 // This horrendous mutable code is a result of how .svg files use implicit instrcution prefixes
                 *state = State::DrawLine;
-                Self::MoveTo(Point(x.try_into().unwrap_or(255), y.try_into().unwrap_or(255)))
+                Self::MoveTo(Point(xa, ya))
             }
-            State::DrawLine => Self::DrawLine(Point(x.try_into().unwrap_or(255), y.try_into().unwrap_or(255))),
+            State::DrawLine => Self::DrawLine(Point(xa, ya)),
             State::MoveToR => {
                 *state = State::DrawLineR;
                 let p = match lp {
-                    Some(tp) => Point((tp.0 as i16 + x).try_into().unwrap_or(255), (tp.1 as i16 + y).try_into().unwrap_or(255)),
-                    None => Point(x.try_into().unwrap_or(255), y.try_into().unwrap_or(255)),
+                    Some(_) => Point(xdiff.unwrap(), ydiff.unwrap()),
+                    None => Point(xa, ya),
                 };
                 Self::MoveTo(p)
             }
             State::DrawLineR => Self::DrawLine(Point(
-                (lp.expect("To not start a line from nothing").0 as i16 + x).try_into().unwrap_or(255),
-                (lp.expect("To not start a line from nothing").1 as i16 + y).try_into().unwrap_or(255),
+                xdiff.expect("Relative line without start point"),
+                ydiff.expect("Relative line wihout start point"),
+            )),
+            State::DrawVertical => {
+                Self::DrawLine(Point(lp.expect("Vertical line from nothing").0, xa))
+            }
+            State::DrawVerticalR => Self::DrawLine(Point(
+                lp.expect("Vertical line from nothing").0,
+                xdiff.expect("Relative without startpoint"),
+            )),
+            State::DrawHorizontal => {
+                Self::DrawLine(Point(xa, lp.expect("Horizontal line from nothing").1))
+            }
+            State::DrawHorizontalR => Self::DrawLine(Point(
+                xdiff.expect("Relative without startpoint"),
+                lp.expect("Horizontal line from nothing").1,
             )),
         }
     }

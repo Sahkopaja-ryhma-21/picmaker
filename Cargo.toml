@@ -1,6 +1,6 @@
 [package]
 name = "picmaker"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 description = "Makes arduino instructions from svg files"
 authors = ["Jere Hasu"]
