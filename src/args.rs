@@ -10,5 +10,5 @@ pub struct Args {
 
     /// Baud rate for serial. Default is 9600
     #[arg(short, long)]
-    pub baud_rate: Option<u32>
+    pub baud_rate: Option<u32>,
 }
