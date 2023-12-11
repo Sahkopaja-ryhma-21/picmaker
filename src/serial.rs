@@ -2,7 +2,7 @@ use std::error::Error;
 
 const DEFAULT_BAUD_RATE: u32 = 9600;
 
-pub fn upload_data(payload: Box<[u8]>) -> Result<(), Box<dyn Error>> {
+pub fn upload_data(payload: Box<[u8]>, baud_rate: Option<u32>) -> Result<(), Box<dyn Error>> {
     let ports = serialport::available_ports()?;
     let chosen = match ports.len() {
         1 => {
@@ -18,11 +18,11 @@ pub fn upload_data(payload: Box<[u8]>) -> Result<(), Box<dyn Error>> {
             .prompt().expect("You need atleast one board connected")
         }
     };
-    let baud_rate = DEFAULT_BAUD_RATE;
+    let br = baud_rate.unwrap_or(DEFAULT_BAUD_RATE);
         /*inquire::CustomType::<u32>::new(&format!("Enter baud rate (default: {DEFAULT_BAUD_RATE})"))
             .with_default(DEFAULT_BAUD_RATE)
             .prompt()?;*/
-    let mut open_port = serialport::new(chosen, baud_rate).open()?;
+    let mut open_port = serialport::new(chosen, br).open()?;
     open_port.write_all(&payload)?;
     Ok(open_port.flush()?)
 }

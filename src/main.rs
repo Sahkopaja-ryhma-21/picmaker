@@ -15,7 +15,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         instructions
             .iter()
             .flat_map(Instrcution::to_bytes)
-            .collect(),
+            .collect(),args.baud_rate
     )?;
 
     Ok(())
