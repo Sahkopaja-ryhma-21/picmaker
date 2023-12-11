@@ -7,7 +7,7 @@ authors = ["Jere Hasu"]
 license = "GPL-3.0-or-later"
 readme = "readme.md"
 homepage = "https://wiki.aalto.fi/pages/viewpage.action?pageId=234042176"
-repository = "https://wiki.aalto.fi/pages/viewpage.action?pageId=234042176"
+repository = "https://github.com/Sahkopaja-ryhma-21/picmaker"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
