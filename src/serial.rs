@@ -26,6 +26,8 @@ pub fn upload_data(payload: Box<[u8]>, baud_rate: Option<u32>) -> Result<(), Box
     .with_default(DEFAULT_BAUD_RATE)
     .prompt()?;*/
     let mut open_port = serialport::new(chosen, br).open()?;
-    open_port.write_all(&payload)?;
+    open_port.write(&[b'd']).expect("unable to write start byte");
+    open_port.flush()?;
+    open_port.write_all(&payload).expect("unable to write payload");
     Ok(open_port.flush()?)
 }
