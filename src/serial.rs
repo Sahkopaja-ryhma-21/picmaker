@@ -1,6 +1,6 @@
 use std::error::Error;
 
-const DEFAULT_BAUD_RATE: u32 = 9600;
+const DEFAULT_BAUD_RATE: u32 = 115200;
 
 pub fn upload_data(payload: Box<[u8]>, baud_rate: Option<u32>) -> Result<(), Box<dyn Error>> {
     let ports = serialport::available_ports()?;

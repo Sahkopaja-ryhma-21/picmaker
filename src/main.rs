@@ -158,8 +158,7 @@ impl Instrcution {
                                         .unwrap_or(f64::NAN)
                                     / height,
                             )
-                        })
-                        .expect(format!("Did not find a cordinate tuple at {}", t).as_str())
+                        }).unwrap_or_else(||(255f64*t.parse::<f64>().expect("Failed")/height, 0f64))
                     {
                         (x, y) => {
                             let inst = Self::create(&mut state, x, y, current_point.as_ref());
@@ -264,7 +263,7 @@ mod tests {
     #[ignore = "Used to print"]
     fn test_print() {
         let i = Instrcution::from_file(
-            &PathBuf::from_str("aalto.svg").expect("Did not find file aalto.svg"),
+            &PathBuf::from_str("Aalto-iso.svg").expect("Did not find file aalto.svg"),
         );
         i.unwrap()
             .iter()
